@@ -1,4 +1,5 @@
 import sys
+import datetime
 import spotipy
 from spotipy import oauth2
 import spotipy.util as util
@@ -18,16 +19,33 @@ if not tokenInfo:
         tokenInfo = sp_oauth.get_access_token(accessCode)
 
 if tokenInfo:
-    if sp_oauth._is_token_expired(tokenInfo):
+    if sp_oauth.is_token_expired(tokenInfo):
         tokenInfo = sp_oauth.refresh_access_token(tokenInfo['refresh_token'])
     token = tokenInfo['access_token']
     sp = spotipy.Spotify(token)
     me = sp.current_user()
-    DiscoverWeekly = sp.user_playlist(me['id'], playlist_id='37i9dQZEVXcX499rnDI26o')
-    print(DiscoverWeekly)
-    #playlists = sp.current_user_playlists(limit=0)
-    #for playlist in playlists['items']:
-    #    print(playlist['name'])
-
+    found = False
+    x = 0
+    playlistID=''
+    while playlistID == '':
+        playlists = sp.current_user_playlists(offset=50*x)
+        if not playlists['items']:
+            print('Error')
+            break
+        else:
+            for playlist in playlists['items']:
+                if playlist['name'] == 'Discover Weekly':
+                    playlistID = playlist['id']
+            x += 1
+    if not playlistID == '':
+        tracks = []
+        discoverWeekly = sp.user_playlist_tracks(me['id'], playlist_id=playlistID, fields='items(track(name, id))')
+        for item in discoverWeekly['items']:
+            track = item['track']
+            tracks.append(track['id'])
+        date = datetime.date.today().isoformat()
+        backupName = 'Rediscover ' + date
+        backup = sp.user_playlist_create(me['id'], backupName, public=False, description='Backup of my Discover Weekly from ' + date)
+        sp.user_playlist_add_tracks(me['id'], backup['id'], tracks)
 else:
     print('Fail')
