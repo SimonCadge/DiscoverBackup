@@ -1,0 +1,2 @@
+from export import SPOTIPY_USERNAME
+print(SPOTIPY_USERNAME)
