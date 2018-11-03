@@ -1,4 +1,5 @@
 import sys
+import os
 import datetime
 import spotipy
 from spotipy import oauth2
@@ -8,7 +9,10 @@ from export import SPOTIPY_USERNAME, SPOTIPY_CLIENT_ID, SPOTIPY_CLIENT_SECRET, S
 scope = 'playlist-modify-private'
 
 def backup():
-    sp_oauth = oauth2.SpotifyOAuth(SPOTIPY_CLIENT_ID, SPOTIPY_CLIENT_SECRET, SPOTIPY_REDIRECT_URI, scope=scope, cache_path='.spotipyoauthcache')
+    cwd = os.path.dirname(os.path.realpath(__file__))
+    cachePath = cwd + '/.spotipyoauthcache'
+    print(cachePath)
+    sp_oauth = oauth2.SpotifyOAuth(SPOTIPY_CLIENT_ID, SPOTIPY_CLIENT_SECRET, SPOTIPY_REDIRECT_URI, scope=scope, cache_path=cachePath)
 
     tokenInfo = sp_oauth.get_cached_token()
     if not tokenInfo:
@@ -25,7 +29,6 @@ def backup():
         token = tokenInfo['access_token']
         sp = spotipy.Spotify(token)
         me = sp.current_user()
-        found = False
         x = 0
         playlistID=''
         while playlistID == '':
