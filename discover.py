@@ -11,7 +11,6 @@ scope = 'playlist-modify-private'
 def backup():
     cwd = os.path.dirname(os.path.realpath(__file__))
     cachePath = cwd + '/.spotipyoauthcache'
-    print(cachePath)
     sp_oauth = oauth2.SpotifyOAuth(SPOTIPY_CLIENT_ID, SPOTIPY_CLIENT_SECRET, SPOTIPY_REDIRECT_URI, scope=scope, cache_path=cachePath)
 
     tokenInfo = sp_oauth.get_cached_token()
@@ -51,5 +50,6 @@ def backup():
             backupName = 'Rediscover ' + date
             backup = sp.user_playlist_create(me['id'], backupName, public=False, description='Backup of my Discover Weekly from ' + date)
             sp.user_playlist_add_tracks(me['id'], backup['id'], tracks)
+        print("Success!")
     else:
         print('Fail')
